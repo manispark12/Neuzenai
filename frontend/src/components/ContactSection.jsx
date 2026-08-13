@@ -211,7 +211,7 @@ export default function ContactSection({ defaultSubject = '' }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
                     Company Name
@@ -222,6 +222,20 @@ export default function ContactSection({ defaultSubject = '' }) {
                     value={formData.company}
                     onChange={handleInputChange}
                     placeholder="Acme Corp"
+                    className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="+1 (555) 000-0000"
                     className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all text-sm"
                   />
                 </div>
