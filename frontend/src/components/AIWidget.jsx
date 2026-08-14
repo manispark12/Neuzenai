@@ -18,14 +18,13 @@ export default function AIWidget({ onOpenContact, onNavigate }) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isTyping]);
-
+    
   const quickPrompts = [
     'What are your core AI capabilities?',
     'Financial Services case study',
     'How fast can we deploy a custom ML model?',
     'Schedule a discovery call'
   ];
-
   const handleSend = async (textToSend) => {
     const query = textToSend || input;
     if (!query.trim()) return;
@@ -158,18 +157,27 @@ export default function AIWidget({ onOpenContact, onNavigate }) {
               e.preventDefault();
               handleSend();
             }}
-            className="p-3 bg-black/60 border-t border-white/10 flex items-center gap-2"
+            className="p-3 bg-black/60 border-t border-white/10 flex items-center gap-2 relative"
           >
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask NAI anything..."
-              className="flex-1 bg-white/10 text-white text-xs px-3 py-2.5 rounded-full outline-none focus:ring-1 focus:ring-orange-500 border border-white/10 placeholder-gray-400"
-            />
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                maxLength={300}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask NAI anything..."
+                className="w-full bg-white/10 text-white text-xs px-3 py-2.5 rounded-full outline-none focus:ring-1 focus:ring-orange-500 border border-white/10 placeholder-gray-400 pr-12"
+              />
+              {input.length > 200 && (
+                <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold ${input.length >= 290 ? 'text-red-400' : 'text-gray-400'}`}>
+                  {input.length}/300
+                </span>
+              )}
+            </div>
             <button
               type="submit"
-              className="w-8 h-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center shrink-0 transition-colors"
+              disabled={!input.trim()}
+              className="w-8 h-8 rounded-full bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center shrink-0 transition-colors"
             >
               <Send className="w-4 h-4" />
             </button>

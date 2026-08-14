@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle2, Calculator, Sparkles, Loader2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, Calculator, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 
 export default function ContactSection({ defaultSubject = '' }) {
   const [formData, setFormData] = useState({
@@ -20,15 +20,83 @@ export default function ContactSection({ defaultSubject = '' }) {
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  const validateField = (name, value) => {
+    let error = '';
+    const trimmed = (value || '').trim();
+
+    if (name === 'fullName') {
+      if (!trimmed) {
+        error = 'Full name is required.';
+      } else if (trimmed.length < 2) {
+        error = 'Full name must be at least 2 characters.';
+      } else if (trimmed.length > 60) {
+        error = 'Full name cannot exceed 60 characters.';
+      } else if (!/^[A-Za-z\s.'-]+$/.test(trimmed)) {
+        error = 'Full name can only contain letters, spaces, dots, or hyphens.';
+      }
+    }
+
+    if (name === 'email') {
+      if (!trimmed) {
+        error = 'Work email address is required.';
+      } else if (trimmed.length > 80) {
+        error = 'Email address cannot exceed 80 characters.';
+      } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)) {
+        error = 'Please enter a valid work email (e.g. sarah@company.com).';
+      }
+    }
+
+    if (name === 'company') {
+      if (trimmed.length > 60) {
+        error = 'Company name cannot exceed 60 characters.';
+      }
+    }
+
+    if (name === 'phone') {
+      if (trimmed.length > 0) {
+        if (trimmed.length < 7 || trimmed.length > 20) {
+          error = 'Phone number must be between 7 and 20 characters.';
+        } else if (!/^[+]*[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/.test(trimmed)) {
+          error = 'Please enter a valid phone number (e.g. +1 555-0199).';
+        }
+      }
+    }
+
+    if (name === 'message') {
+      if (!trimmed) {
+        error = 'Project details are required.';
+      } else if (trimmed.length < 15) {
+        error = `Project details must be at least 15 characters (${trimmed.length}/15 min).`;
+      } else if (trimmed.length > 1000) {
+        error = 'Project details cannot exceed 1000 characters.';
+      }
+    }
+
+    return error;
+  };
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+
+    if (touched[name]) {
+      const error = validateField(name, value);
+      setErrors(prev => ({ ...prev, [name]: error }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    const error = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: error }));
   };
 
   const handleBudgetChange = (budget) => {
     setFormData({ ...formData, projectBudget: budget });
-    // Recalculate AI estimate live
     if (budget === '< $25k') {
       setEstimatorState({ scope: 'MVP / Proof of Concept', timeline: '2-4 Weeks', estimatedCost: '$15,000 - $22,000' });
     } else if (budget === '$25k - $50k') {
@@ -42,21 +110,42 @@ export default function ContactSection({ defaultSubject = '' }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const newErrors = {
+      fullName: validateField('fullName', formData.fullName),
+      email: validateField('email', formData.email),
+      company: validateField('company', formData.company),
+      phone: validateField('phone', formData.phone),
+      message: validateField('message', formData.message),
+    };
+
+    setTouched({
+      fullName: true,
+      email: true,
+      company: true,
+      phone: true,
+      message: true,
+    });
+
+    setErrors(newErrors);
+
+    const hasErrors = Object.values(newErrors).some(err => err !== '');
+    if (hasErrors) {
+      return; // Stop submission if validation fails
+    }
+
     setLoading(true);
-    setErrorMsg('');
 
     try {
-      // Post to Express backend server
       const res = await fetch('https://neuzenai-23l6.onrender.com/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      const data = await res.json();
+      await res.json();
       setSubmitted(true);
     } catch (err) {
       console.warn('Backend unavailable, demonstrating successful client submission:', err);
-      // Fallback graceful success simulation if server port is changing
       setSubmitted(true);
     } finally {
       setLoading(false);
@@ -167,81 +256,149 @@ export default function ContactSection({ defaultSubject = '' }) {
                 onClick={() => {
                   setSubmitted(false);
                   setFormData({ ...formData, message: '' });
+                  setTouched({});
+                  setErrors({});
                 }}
-                className="mt-4 px-6 py-2.5 rounded-full bg-orange-500 text-white font-bold text-sm shadow-md hover:bg-orange-600"
+                className="mt-4 px-6 py-2.5 rounded-full bg-orange-500 text-white font-bold text-sm shadow-md hover:bg-orange-600 cursor-pointer"
               >
                 Send Another Request
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} noValidate className="space-y-6">
               <h3 className="text-2xl font-extrabold text-gray-900 font-['Outfit']">
                 Schedule a Consultation
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
-                    Full Name *
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
+                      Full Name *
+                    </label>
+                    <span className="text-[10px] font-semibold text-gray-400">
+                      {formData.fullName.length}/60
+                    </span>
+                  </div>
                   <input
                     type="text"
-                    required
                     name="fullName"
+                    maxLength={60}
                     value={formData.fullName}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     placeholder="e.g. Sarah Jenkins"
-                    className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all text-sm"
+                    className={`w-full px-4 py-3 rounded-2xl border outline-none transition-all text-sm ${
+                      touched.fullName && errors.fullName
+                        ? 'border-red-500 bg-red-50/40 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                        : 'border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
+                    }`}
                   />
+                  {touched.fullName && errors.fullName && (
+                    <p className="text-xs text-red-500 font-bold mt-1.5 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.fullName}</span>
+                    </p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
-                    Work Email *
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
+                      Work Email *
+                    </label>
+                    <span className="text-[10px] font-semibold text-gray-400">
+                      {formData.email.length}/80
+                    </span>
+                  </div>
                   <input
                     type="email"
-                    required
                     name="email"
+                    maxLength={80}
                     value={formData.email}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     placeholder="sarah@company.com"
-                    className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all text-sm"
+                    className={`w-full px-4 py-3 rounded-2xl border outline-none transition-all text-sm ${
+                      touched.email && errors.email
+                        ? 'border-red-500 bg-red-50/40 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                        : 'border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
+                    }`}
                   />
+                  {touched.email && errors.email && (
+                    <p className="text-xs text-red-500 font-bold mt-1.5 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.email}</span>
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
-                    Company Name
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
+                      Company Name
+                    </label>
+                    <span className="text-[10px] font-semibold text-gray-400">
+                      {formData.company.length}/60
+                    </span>
+                  </div>
                   <input
                     type="text"
                     name="company"
+                    maxLength={60}
                     value={formData.company}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     placeholder="Acme Corp"
-                    className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all text-sm"
+                    className={`w-full px-4 py-3 rounded-2xl border outline-none transition-all text-sm ${
+                      touched.company && errors.company
+                        ? 'border-red-500 bg-red-50/40 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                        : 'border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
+                    }`}
                   />
+                  {touched.company && errors.company && (
+                    <p className="text-xs text-red-500 font-bold mt-1.5 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.company}</span>
+                    </p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
-                    Phone Number
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
+                      Phone Number
+                    </label>
+                    <span className="text-[10px] font-semibold text-gray-400">
+                      {formData.phone.length}/20
+                    </span>
+                  </div>
                   <input
                     type="tel"
                     name="phone"
+                    maxLength={20}
                     value={formData.phone}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     placeholder="+1 (555) 000-0000"
-                    className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all text-sm"
+                    className={`w-full px-4 py-3 rounded-2xl border outline-none transition-all text-sm ${
+                      touched.phone && errors.phone
+                        ? 'border-red-500 bg-red-50/40 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                        : 'border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
+                    }`}
                   />
+                  {touched.phone && errors.phone && (
+                    <p className="text-xs text-red-500 font-bold mt-1.5 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.phone}</span>
+                    </p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
+                  <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-1.5">
                     Capability Interest
                   </label>
                   <select
@@ -260,29 +417,45 @@ export default function ContactSection({ defaultSubject = '' }) {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
-                  Project Details / Requirements *
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
+                    Project Details / Requirements *
+                  </label>
+                  <span className={`text-[10px] font-bold ${formData.message.length > 950 ? 'text-red-500' : 'text-gray-400'}`}>
+                    {formData.message.length}/1000 characters
+                  </span>
+                </div>
                 <textarea
-                  required
                   rows={4}
                   name="message"
+                  maxLength={1000}
                   value={formData.message}
                   onChange={handleInputChange}
+                  onBlur={handleBlur}
                   placeholder="Tell us about your business goals, target timelines, or specific dataset requirements..."
-                  className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all text-sm"
+                  className={`w-full px-4 py-3 rounded-2xl border outline-none transition-all text-sm ${
+                    touched.message && errors.message
+                      ? 'border-red-500 bg-red-50/40 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                      : 'border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
+                  }`}
                 />
+                {touched.message && errors.message && (
+                  <p className="text-xs text-red-500 font-bold mt-1.5 flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{errors.message}</span>
+                  </p>
+                )}
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 rounded-full bg-gradient-to-r from-[#FF5500] to-[#FF3D00] text-white font-extrabold text-base shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-full bg-gradient-to-r from-[#FF5500] to-[#FF3D00] text-white font-extrabold text-base shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Submitting Request...</span>
+                    <span>Validating & Submitting...</span>
                   </>
                 ) : (
                   <>

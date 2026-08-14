@@ -95,6 +95,20 @@ select {
   }
 }
 
+@keyframes marqueeScroll {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 30s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
 .animate-float {
   animation: floatParticle 4s ease-in-out infinite;
 }

@@ -5,9 +5,14 @@ import AIWidget from './components/AIWidget';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import IndustriesPage from './pages/IndustriesPage';
+import AboutPage from './pages/AboutPage';
+import CareersPage from './pages/CareersPage';
 
 export default function App() {
   const [contactSubject, setContactSubject] = useState('');
+  const [selectedCapability, setSelectedCapability] = useState('analytics');
+  const [selectedIndustry, setSelectedIndustry] = useState('energy');
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const scrollToContact = (subject = '') => {
     if (subject) setContactSubject(subject);
@@ -15,9 +20,21 @@ export default function App() {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleNavigate = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  const handleNavigate = (id, subId = null) => {
+    if (id === 'expertise' && subId) {
+      setSelectedCapability(subId);
+    } else if (id === 'industries' && subId) {
+      setSelectedIndustry(subId);
+    } else if (id === 'products' && subId) {
+      setSelectedProduct(subId);
+    }
+
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 50);
   };
 
   return (
@@ -37,6 +54,17 @@ export default function App() {
               scrollToContact={scrollToContact} 
               handleNavigate={handleNavigate} 
               contactSubject={contactSubject} 
+              selectedCapability={selectedCapability}
+              selectedIndustry={selectedIndustry}
+              selectedProduct={selectedProduct}
+            />
+          } 
+        />
+        <Route 
+          path="/about" 
+          element={
+            <AboutPage 
+              scrollToContact={scrollToContact} 
             />
           } 
         />
@@ -45,8 +73,13 @@ export default function App() {
           element={
             <IndustriesPage 
               scrollToContact={scrollToContact} 
+              selectedIndustry={selectedIndustry}
             />
           } 
+        />
+        <Route 
+          path="/careers" 
+          element={<CareersPage />} 
         />
       </Routes>
 

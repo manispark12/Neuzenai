@@ -1,7 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layers, Cpu, Database, ChevronRight, Sparkles, Check } from 'lucide-react';
 
-export default function Products({ onSelectProduct }) {
+export default function Products({ onSelectProduct, selectedProduct }) {
+  const [highlightedId, setHighlightedId] = useState(null);
+
+  useEffect(() => {
+    if (selectedProduct) {
+      setHighlightedId(selectedProduct);
+      const timer = setTimeout(() => {
+        setHighlightedId(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedProduct]);
+
   const products = [
     {
       id: 'mlops',
@@ -67,17 +79,23 @@ export default function Products({ onSelectProduct }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {products.map((prod) => {
           const Icon = prod.icon;
+          const isHighlighted = prod.id === highlightedId;
+
           return (
             <div
               key={prod.id}
-              className="rounded-3xl bg-white border border-gray-200 hover:border-orange-400 p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+              className={`rounded-3xl bg-white border p-8 shadow-sm transition-all duration-500 flex flex-col justify-between group ${
+                isHighlighted
+                  ? 'border-[#FF4500] ring-4 ring-orange-500/30 shadow-2xl scale-[1.03] bg-gradient-to-b from-orange-500/5 via-white to-white'
+                  : 'border-gray-200 hover:border-orange-400 hover:shadow-xl'
+              }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <div className={`w-12 h-12 rounded-2xl ${prod.iconBg} flex items-center justify-center`}>
                     <Icon className="w-6 h-6" />
                   </div>
-                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+                  <span className={`text-xs font-bold px-3 py-1 rounded-full ${isHighlighted ? 'bg-[#FF4500] text-white shadow-md' : 'bg-gray-100 text-gray-700'}`}>
                     {prod.badge}
                   </span>
                 </div>
@@ -108,7 +126,11 @@ export default function Products({ onSelectProduct }) {
                 onClick={() => {
                   if (onSelectProduct) onSelectProduct(prod.title);
                 }}
-                className="w-full py-3 rounded-2xl bg-gray-50 group-hover:bg-[#FF4500] text-gray-800 group-hover:text-white font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200"
+                className={`w-full py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 ${
+                  isHighlighted 
+                    ? 'bg-[#FF4500] text-white shadow-lg shadow-orange-500/40' 
+                    : 'bg-gray-50 group-hover:bg-[#FF4500] text-gray-800 group-hover:text-white'
+                }`}
               >
                 <span>Request Platform Demo</span>
                 <ChevronRight className="w-4 h-4" />

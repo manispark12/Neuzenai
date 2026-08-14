@@ -3,18 +3,25 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Globe } from 'lucide-react';
 import Hero from '../components/Hero';
 import Expertise from '../components/Expertise';
+import Partners from '../components/Partners';
 import SuccessStories from '../components/SuccessStories';
 import Products from '../components/Products';
 import ContactSection from '../components/ContactSection';
 
-export default function HomePage({ scrollToContact, handleNavigate, contactSubject }) {
+export default function HomePage({ scrollToContact, handleNavigate, contactSubject, selectedCapability, selectedIndustry, selectedProduct }) {
   return (
     <main>
       {/* Hero Section */}
       <Hero onStartJourney={() => scrollToContact()} />
 
       {/* Expertise Section */}
-      <Expertise onSelectService={(title) => scrollToContact(title)} />
+      <Expertise 
+        selectedCapability={selectedCapability}
+        onSelectService={(title) => scrollToContact(title)} 
+      />
+
+      {/* Strategic Partners & Trusted Ecosystem Showcase */}
+      <Partners />
 
       {/* Lightweight Industry Solutions Banner Linking to /industries */}
       <section className="py-14 bg-gradient-to-r from-orange-500/10 via-emerald-500/5 to-orange-500/10 border-y border-orange-500/20 my-12">
@@ -47,7 +54,10 @@ export default function HomePage({ scrollToContact, handleNavigate, contactSubje
       <SuccessStories onOpenContact={() => scrollToContact()} />
 
       {/* Products Showcase Section */}
-      <Products onSelectProduct={(title) => scrollToContact(title)} />
+      <Products 
+        selectedProduct={selectedProduct}
+        onSelectProduct={(title) => scrollToContact(title)} 
+      />
 
       {/* Contact Section */}
       <ContactSection defaultSubject={contactSubject} />
