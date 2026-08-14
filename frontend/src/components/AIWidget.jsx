@@ -73,10 +73,10 @@ export default function AIWidget({ onOpenContact, onNavigate }) {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 max-w-[calc(100vw-32px)]">
       {/* Drawer Window */}
       {isOpen ? (
-        <div className="w-80 sm:w-96 rounded-3xl glass-panel-dark border border-white/20 shadow-2xl overflow-hidden flex flex-col h-[500px] animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="w-[calc(100vw-32px)] sm:w-96 rounded-3xl glass-panel-dark border border-white/20 shadow-2xl overflow-hidden flex flex-col h-[460px] sm:h-[500px] animate-in fade-in slide-in-from-bottom-4 duration-300">
           {/* Header */}
           <div className="p-4 bg-gradient-to-r from-orange-600 to-orange-500 text-white flex items-center justify-between">
             <div className="flex items-center gap-2.5">

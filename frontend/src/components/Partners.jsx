@@ -248,18 +248,14 @@ export default function Partners() {
               >
                 <div>
                   {/* Brand Logo Container */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="w-auto">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+                    <div className="shrink-0 max-w-full overflow-hidden">
                       {partner.logoRender()}
                     </div>
                     <div className={`px-3 py-1 rounded-full ${partner.badgeColor} font-extrabold text-[10px] border shrink-0`}>
                       {partner.tier}
                     </div>
                   </div>
-
-                  <h4 className="text-2xl font-extrabold text-white font-['Outfit'] mb-3 group-hover:text-[#FF4500] transition-colors">
-                    {partner.name}
-                  </h4>
 
                   <p className="text-slate-300 text-sm leading-relaxed font-normal mb-6">
                     {partner.desc}
@@ -304,11 +300,11 @@ export default function Partners() {
                     {client.logoRender()}
                   </div>
 
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <span className="text-[11px] font-extrabold text-orange-400 font-['Outfit'] uppercase tracking-wider">
                       {client.category}
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
                       {client.sla}
                     </span>
                   </div>

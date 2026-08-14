@@ -320,7 +320,7 @@ export default function CareersPage() {
 
                 <button
                   onClick={() => handleApplyClick(pos.title)}
-                  className="px-6 py-3 rounded-full bg-gradient-to-r from-[#FF5500] to-[#FF3D00] hover:from-[#FF4500] hover:to-[#E63900] text-white font-extrabold text-sm shadow-xl shadow-orange-500/30 hover:scale-105 active:scale-95 transition-all duration-300 shrink-0 flex items-center justify-center gap-2 cursor-pointer"
+                  className="px-6 py-3 rounded-full bg-gradient-to-r from-[#FF5500] to-[#FF3D00] hover:from-[#FF4500] hover:to-[#E63900] text-white font-extrabold text-sm shadow-xl shadow-orange-500/30 hover:scale-105 active:scale-95 transition-all duration-300 w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>Apply Now</span>
                   <ArrowRight className="w-4 h-4" />
@@ -331,7 +331,7 @@ export default function CareersPage() {
         </div>
 
         {/* 4. CAREERS APPLICATION FORM SECTION (BYPASSES BACKEND) */}
-        <div id="careers-form-section" className="max-w-4xl mx-auto rounded-3xl bg-white text-gray-900 p-8 sm:p-12 border border-gray-200 shadow-2xl">
+        <div id="careers-form-section" className="max-w-4xl mx-auto rounded-3xl bg-white text-gray-900 p-5 sm:p-12 border border-gray-200 shadow-2xl">
           {submitted ? (
             /* SUCCESS MESSAGE DISPLAY */
             <div className="text-center py-12 space-y-6 animate-in fade-in duration-500">

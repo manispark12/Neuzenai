@@ -240,7 +240,7 @@ export default function ContactSection({ defaultSubject = '' }) {
         </div>
 
         {/* Right Column: Interactive Contact Form */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-8 sm:p-10 border border-gray-200 shadow-xl">
+        <div className="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-10 border border-gray-200 shadow-xl">
           {submitted ? (
             <div className="text-center py-12 space-y-4 animate-in fade-in duration-300">
               <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
